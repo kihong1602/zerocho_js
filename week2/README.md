@@ -4,3 +4,4 @@
 |:----------------------:|:--------------------:|
 | [Day1](day1/README.md) |       스코프, 클로저       |
 | [Day2](day2/README.md) | Promise, async/await |
+| [Day3](day3/README.md) |     DOM, Window      |
