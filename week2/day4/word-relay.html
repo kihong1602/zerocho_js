@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<title>끝말잇기</title>
+	</head>
+	<body>
+		<div>
+			<span id="order">1</span>번째 참가자
+		</div>
+		<div>제시어: <span id="word"></span></div>
+		<input type="text">
+		<button>입력</button>
+		<script>
+      const $order = document.querySelector('#order');
+      const $word = document.querySelector('#word');
+      const $input = document.querySelector('input');
+      const $button = document.querySelector('button');
+
+      const size = Number(prompt('전체 참가자 수 입력'));
+      let currentOrder = 1;
+      $order.textContent = currentOrder.toString();
+
+      let prevWord;
+      let currentWord;
+
+      const usedWords = new Set();
+
+      const onInput = (e) => {
+        currentWord = e.target.value;
+      }
+
+      const isAvailableWord = () => {
+        return !usedWords.has(currentWord) && prevWord.at(-1) === currentWord.at(0);
+      }
+
+      const updateWord = () => {
+        usedWords.add(currentWord);
+        prevWord = currentWord;
+        $word.textContent = currentWord;
+        currentOrder++;
+        if (currentOrder > size) {
+          currentOrder = 1;
+        }
+        $order.textContent = currentOrder;
+        clearInput();
+      }
+
+      const clearInput = () => {
+        $input.value = '';
+        $input.focus();
+      }
+
+      const onClick = () => {
+        if (currentWord.length < 2) {
+          alert('두 글자 이상 입력하세요!');
+          clearInput();
+          return;
+        }
+
+        if (!prevWord || isAvailableWord()) {
+          updateWord();
+        } else {
+          alert('틀렸습니다!');
+          clearInput();
+        }
+      }
+
+      $input.addEventListener('input', onInput);
+      $input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          onClick();
+        }
+      })
+      $button.addEventListener('click', onClick);
+		</script>
+	</body>
+</html>
