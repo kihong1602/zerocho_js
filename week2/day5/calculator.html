@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<title>계산기</title>
+		<link href="style.css" rel="stylesheet">
+	</head>
+	<body>
+		<input id="operator" readonly type="text">
+		<input id="result" readonly type="number">
+		<div class="row">
+			<button id="num-7">7</button>
+			<button id="num-8">8</button>
+			<button id="num-9">9</button>
+			<button id="plus">+</button>
+		</div>
+		<div class="row">
+			<button id="num-4">4</button>
+			<button id="num-5">5</button>
+			<button id="num-6">6</button>
+			<button id="minus">-</button>
+		</div>
+		<div class="row">
+			<button id="num-1">1</button>
+			<button id="num-2">2</button>
+			<button id="num-3">3</button>
+			<button id="divide">/</button>
+		</div>
+		<div class="row">
+			<button id="clear">C</button>
+			<button id="num-0">0</button>
+			<button id="calculate">=</button>
+			<button id="multiply">x</button>
+		</div>
+
+		<script>
+
+      const state = {
+        num1: null,
+        num2: null,
+        operator: '',
+      }
+
+      const $operator = document.querySelector('#operator');
+      const $result = document.querySelector('#result');
+
+      const onClickNumber = (e) => {
+        const clicked = parseInt(e.target.textContent);
+        if (!state.operator) {
+          state.num1 = (state.num1 || 0) * 10 + clicked;
+          $result.value = state.num1;
+          return;
+        }
+
+        if (!state.num2) {
+          $result.value = '';
+        }
+        state.num2 = (state.num2 || 0) * 10 + clicked;
+        $result.value = state.num2;
+      };
+
+      for (let i = 0; i < 10; i++) {
+        document.querySelector(`#num-${i}`).addEventListener('click', onClickNumber);
+      }
+
+      const operations = [
+        {
+          name: 'plus',
+          sign: '+',
+          operation: (a, b) => a + b,
+        },
+        {
+          name: 'minus',
+          sign: '-',
+          operation: (a, b) => a - b,
+        },
+        {
+          name: 'multiply',
+          sign: 'x',
+          operation: (a, b) => a * b,
+        },
+        {
+          name: 'divide',
+          sign: '/',
+          operation: (a, b) => {
+            if (b === 0) {
+              alert('0으로 나눌 수 없습니다.');
+              resetCalculator();
+              return null;
+            }
+            return a / b;
+          },
+        },
+      ]
+
+      const onClickOperator = (e) => {
+        if (state.num1 !== null) {
+
+          if (state.operator && state.num2 !== null) {
+            // 이전 연산이 있다면 중간 계산을 수행
+            const selectedOperation = operations.find(op => op.sign === state.operator);
+            state.num1 = selectedOperation.operation(state.num1, state.num2);
+            $result.value = state.num1;
+
+            state.num2 = null;
+          }
+
+          state.operator = e.target.textContent;
+          $operator.value = state.operator;
+        } else {
+          alert('숫자를 먼저 입력하세요.');
+        }
+      };
+
+      operations.forEach(value => document.querySelector(`#${value.name}`).addEventListener('click', onClickOperator));
+
+      const calculate = (e) => {
+        if (state.num1 !== null && state.num2 !== null) {
+          const selectedOperation = operations.find(op => op.sign === state.operator);
+          $operator.value = e.target.textContent;
+          $result.value = selectedOperation.operation(state.num1, state.num2);
+        } else {
+          alert('숫자를 먼저 입력하세요.');
+        }
+      }
+
+      document.querySelector('#calculate').addEventListener('click', calculate);
+
+      const resetCalculator = () => {
+        state.num1 = null;
+        state.num2 = null;
+        state.operator = '';
+        $result.value = '';
+        $operator.value = '';
+      };
+
+      document.querySelector('#clear').addEventListener('click', resetCalculator);
+		</script>
+	</body>
+</html>
