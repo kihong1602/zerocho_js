@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<title>숫자야구</title>
+	</head>
+	<body>
+		<form id="form">
+			<input id="input" type="text">
+			<button>확인</button>
+		</form>
+		<div id="logs"></div>
+		<script>
+      const $input = document.querySelector('#input');
+      const $form = document.querySelector('#form');
+      const $logs = document.querySelector('#logs');
+
+      const numbers = [];
+      for (let i = 1; i < 10; i++) {
+        numbers.push(i);
+      }
+
+      const getResultNumbers = () => {
+        const result = [];
+        for (let i = 0; i < 4; i++) {
+          const index = Math.floor(Math.random() * numbers.length);
+          result.push(numbers[index]);
+          numbers.splice(index, 1);
+        }
+        return result;
+      }
+
+      const result = getResultNumbers();
+
+      console.log(result);
+
+      const inputNumbers = [];
+
+      $form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const value = $input.value;
+
+        const isAvailableValue = validate(value);
+
+        if (isAvailableValue) {
+          inputNumbers.push(value);
+
+          if (result.join('') === value) {
+            $logs.textContent = '홈런!';
+            return;
+          }
+
+          if (inputNumbers.length >= 9) {
+            defeat();
+            return;
+          }
+
+          let strikeCount = 0;
+          let ballCount = 0;
+          let outCount = 0;
+
+          result.forEach((v, i) => {
+            const idx = value.indexOf(v);
+            if (idx !== -1) {
+              if (idx === i) {
+                strikeCount++;
+              } else {
+                ballCount++;
+              }
+            }
+          });
+
+          if (strikeCount === 0 && ballCount === 0) {
+            outCount++;
+          }
+
+          $logs.append(`${value}: ${strikeCount} 스트라이크 ${ballCount} 볼 ${outCount} 아웃`, document.createElement('br'));
+          if (outCount === 3) {
+            defeat();
+            $input.value = '';
+            strikeCount = 0;
+            ballCount = 0;
+            outCount = 0;
+          }
+        }
+
+      });
+
+      function defeat() {
+        const message = document.createTextNode(`패배. 정답은 ${result.join('')}`);
+        $logs.appendChild(message);
+      }
+
+      function validate(input) {
+        if (input.length !== 4) {
+          return alert('4자리 숫자를 입력하세요.');
+        }
+        if (new Set(input).size !== 4) {
+          return alert('중복되지 않는 4자리 숫자를 입력하세요.');
+        }
+        if (inputNumbers.includes(input)) {
+          return alert('이미 시도한 숫자');
+        }
+        return true;
+      }
+		</script>
+	</body>
+</html>
