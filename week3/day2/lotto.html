@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<title>로또 추첨기</title>
+		<style>
+      .ball {
+        display: inline-block;
+        border: 1px solid black;
+        border-radius: 20px;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
+        text-align: center;
+        margin-right: 20px;
+      }
+		</style>
+	</head>
+	<body>
+		<form id="form">
+			<input name="input" placeholder="숫자 6개를 쉼표로 구분해 입력하세요." type="text">
+			<button>추첨</button>
+		</form>
+		<div id="result">당첨 숫자:</div>
+		<div id="bonus">보너스 숫자:</div>
+		<script>
+      const $form = document.querySelector('#form');
+      const $result = document.querySelector('#result');
+      const $bonus = document.querySelector('#bonus');
+
+      const colorize = (number, $tag) => {
+        if (number < 10) {
+          $tag.style.backgroundColor = 'red';
+          $tag.style.color = 'white';
+        } else if (number < 20) {
+          $tag.style.backgroundColor = 'orange';
+        } else if (number < 30) {
+          $tag.style.backgroundColor = 'yellow';
+        } else if (number < 40) {
+          $tag.style.backgroundColor = 'blue';
+          $tag.style.color = 'white';
+        } else {
+          $tag.style.backgroundColor = 'green';
+          $tag.style.color = 'white';
+        }
+      }
+
+      function drawBall(number, $parent) {
+        const $ball = document.createElement('div');
+        $ball.className = 'ball';
+        colorize(number, $ball);
+        $ball.textContent = number;
+        $parent.appendChild($ball);
+      }
+
+      const setTimeoutPromise = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
+
+      let clickable = true;
+      $form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!clickable) {
+          return;
+        }
+
+        clickable = false;
+        $result.innerHTML = '당첨 숫자: ';
+        $bonus.innerHTML = '보너스 숫자: ';
+
+        const inputValue = e.target.input.value;
+        if (!inputValue.trim()) {
+          return alert('숫자를 입력하세요.');
+        }
+
+        const numbers = inputValue.split(",").map(v => parseInt(v.trim()));
+        if (numbers.length !== 6) {
+          return alert('숫자를 6개 입력하세요.');
+        }
+
+        if (new Set(numbers).size !== 6) {
+          return alert('중복된 숫자를 입력했습니다.');
+        }
+
+        if (numbers.find(v => v > 45 || v < 1)) {
+          return alert('1부터 45까지만 입력할 수 있습니다.');
+        }
+        const candidate = Array(45).fill(1).map((v, i) => i + 1);
+        const shuffle = [];
+
+        while (candidate.length > 0) {
+          const random = Math.floor(Math.random() * candidate.length);
+          const spliceArray = candidate.splice(random, 1);
+          const value = spliceArray[0];
+          shuffle.push(value);
+        }
+        console.log(shuffle);
+
+        const winBalls = shuffle.slice(0, 6).sort((a, b) => a - b);
+        const bonus = shuffle[6];
+        console.log(winBalls, bonus);
+
+        for (let i = 0; i < winBalls.length; i++) {
+          await setTimeoutPromise(1000);
+          console.log(winBalls[i], i);
+          drawBall(winBalls[i], $result);
+        }
+
+        await setTimeoutPromise(1000);
+        drawBall(bonus, $bonus);
+
+        await setTimeoutPromise(0);
+
+        let count = 0;
+        numbers.forEach(num => {
+          if (winBalls.includes(num)) {
+            count++;
+          }
+        });
+
+        if (count === 6) {
+          alert('1등! 현실 로또 당첨될 운을 여기에 쓰시다니...');
+        } else if (count === 5) {
+          if (numbers.includes(bonus)) {
+            alert('2등! 보너스 공이지만 숫자 6개를 맞추셨네요.');
+          } else {
+            alert('3등! 아쉽습니다. 그래도 축하드려요.');
+          }
+        } else if (count === 4) {
+          alert('4등! 5만원 축하드려요.');
+        } else if (count === 3) {
+          alert('5등! 5천원 축하드려요.');
+        } else {
+          alert('로또 참 어렵죠?');
+        }
+        clickable = true;
+      });
+		</script>
+	</body>
+</html>
