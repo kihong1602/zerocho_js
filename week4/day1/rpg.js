@@ -158,7 +158,7 @@ class Game {
     if (monster === null) {
       $monsterName.textContent = '';
       $monsterHp.textContent = '';
-      $monsterAtt.textContent = '';
+      $monsterAtt.textContent = ''; //asdfasdfasdf
       return;
     }
 
